@@ -9,14 +9,14 @@
 	License: MIT
 */  
  
-/**
- * Check if WooCommerce is active
- */
+
 if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
  
-	function my_plugin_init() {
-		if ( ! class_exists( 'My_Cheque_Order' ) ) {
-			class My_Cheque_Order extends WC_Gateway_Cheque {
+	// WooCommerce is active
+	
+	function init_MC() {
+		if ( ! class_exists( 'Gateway_MC' ) ) {
+			class Gateway_MC extends WC_Gateway_Cheque {
 				/**
 				 * Constructor for your shipping class
 				 *
@@ -24,15 +24,16 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 				 * @return void
 				 */
 				public function __construct() {
-					$this->id                 = 'My_Cheque_Order'; // Id for your shipping method. Should be uunique.
-					$this->method_title       = __( "Inoltra l'Ordine" );  // Title shown in admin
-					$this->method_description = __( 'Inoltra la richiesta direttamente ai nostri uffici. Verrete contattati in seguito per ricevere tutti i dettagli su come procedere all\'acquisto' ); // Description shown in admin
-					$this->enabled            = "yes"; // This can be added as an setting but for this example its forced enabled
+					$this->id                 = 'Gateway_MC';
+					$this->title              = __( "Offerta speciale" );
+					$this->method_title       = __( "Inoltra l'Ordine" );
+					$this->method_description = __( 'Inoltra la richiesta direttamente ai nostri uffici. Verrete contattati in seguito per ricevere tutti i dettagli su come procedere all\'acquisto' ); 
+					$this->enabled            = "yes";
  					$this->hasFields          = false;
 
 					$this->init_form_fields();
 					$this->init_settings();
-
+					
 					add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
 				}
 				
@@ -62,12 +63,12 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		}
 	}
 
-	add_action( 'plugins_loaded', 'my_plugin_init' );
+	add_action( 'plugins_loaded', 'init_MC' );
  
-	function add_This( $methods ) {
-		$methods[] = 'My_Cheque_Order';
+	function add_Gateway_MC_Class( $methods ) {
+		$methods[] = 'Gateway_MC';
 		return $methods;
 	}
  
-	add_filter( 'woocommerce_payments_gateways', 'add_This' );
+	add_filter( 'woocommerce_payment_gateways', 'add_Gateway_MC_Class' );
 }
