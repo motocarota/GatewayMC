@@ -2,7 +2,7 @@
 /* 
 	Plugin Name: Don't Pay
 	Plugin URI: http://www.simone-poggi.com/
-	Description: WooCommerce plugin to avoid payment procedure for certain orders
+	Description: WooCommerce plugin to avoid payment procedure
 	Version: 0.1 
 	Author: Simone Poggi
 	Author URI: http://www.simone-poggi.com/
@@ -14,9 +14,9 @@
  */
 if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
  
-	function your_shipping_method_init() {
-		if ( ! class_exists( 'WC_Your_Shipping_Method' ) ) {
-			class WC_Your_Shipping_Method extends WC_Shipping_Method {
+	function my_plugin_init() {
+		if ( ! class_exists( 'My_Cheque_Order' ) ) {
+			class My_Cheque_Order extends WC_Gateway_Cheque {
 				/**
 				 * Constructor for your shipping class
 				 *
@@ -24,59 +24,50 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 				 * @return void
 				 */
 				public function __construct() {
-					$this->id                 = 'your_shipping_method'; // Id for your shipping method. Should be uunique.
-					$this->method_title       = __( 'Your Shipping Method' );  // Title shown in admin
-					$this->method_description = __( 'Description of your shipping method' ); // Description shown in admin
- 
+					$this->id                 = 'My_Cheque_Order'; // Id for your shipping method. Should be uunique.
+					$this->method_title       = __( "Inoltra l'Ordine" );  // Title shown in admin
+					$this->method_description = __( 'Inoltra la richiesta direttamente ai nostri uffici. Verrete contattati in seguito per ricevere tutti i dettagli su come procedere all\'acquisto' ); // Description shown in admin
 					$this->enabled            = "yes"; // This can be added as an setting but for this example its forced enabled
-					$this->title              = "My Shipping Method"; // This can be added as an setting but for this example its forced.
- 
-					$this->init();
+ 					$this->hasFields          = false;
+
+					$this->init_form_fields();
+					$this->init_settings();
+
+					add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
 				}
- 
-				/**
-				 * Init your settings
-				 *
-				 * @access public
-				 * @return void
-				 */
-				function init() {
-					// Load the settings API
-					$this->init_form_fields(); // This is part of the settings API. Override the method to add your own settings
-					$this->init_settings(); // This is part of the settings API. Loads settings you previously init.
- 
-					// Save settings in admin if you have any defined
-					add_action( 'woocommerce_update_options_shipping_' . $this->id, array( $this, 'process_admin_options' ) );
-				}
- 
-				/**
-				 * calculate_shipping function.
-				 *
-				 * @access public
-				 * @param mixed $package
-				 * @return void
-				 */
-				public function calculate_shipping( $package ) {
-					$rate = array(
-						'id' => $this->id,
-						'label' => $this->title,
-						'cost' => '10.99',
-						'calc_tax' => 'per_item'
+				
+				public function init_form_fields() {
+					$this->form_fields = array(
+						'enabled' => array(
+							'title' => __( 'Enable/Disable', 'woocommerce' ),
+							'type' => 'checkbox',
+							'label' => __( 'Enable Cheque Payment', 'woocommerce' ),
+							'default' => 'yes'
+						),
+						'title' => array(
+							'title' => __( 'Title', 'woocommerce' ),
+							'type' => 'text',
+							'description' => __( 'This controls the title which the user sees during checkout.', 'woocommerce' ),
+							'default' => __( 'Cheque Payment', 'woocommerce' ),
+							'desc_tip'      => true,
+						),
+						'description' => array(
+							'title' => __( 'Customer Message', 'woocommerce' ),
+							'type' => 'textarea',
+							'default' => ''
+						)
 					);
- 
-					// Register the rate
-					$this->add_rate( $rate );
 				}
 			}
 		}
 	}
+
+	add_action( 'plugins_loaded', 'my_plugin_init' );
  
-	add_action( 'woocommerce_shipping_init', 'your_shipping_method_init' );
- 
-	function add_your_shipping_method( $methods ) {
-		$methods[] = 'WC_Your_Shipping_Method';
+	function add_This( $methods ) {
+		$methods[] = 'My_Cheque_Order';
 		return $methods;
 	}
  
-	add_filter( 'woocommerce_shipping_methods', 'add_your_shipping_method' );
+	add_filter( 'woocommerce_payments_gateways', 'add_This' );
 }
