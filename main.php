@@ -25,9 +25,9 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 				 */
 				public function __construct() {
 					$this->id                 = 'Gateway_MC';
-					$this->title              = __( "Offerta speciale" );
+					$this->title              = __( "Inoltra l'Ordine" );
 					$this->method_title       = __( "Inoltra l'Ordine" );
-					$this->method_description = __( 'Inoltra la richiesta direttamente ai nostri uffici. Verrete contattati in seguito per ricevere tutti i dettagli su come procedere all\'acquisto' ); 
+					$this->description        = __( 'Inoltra la richiesta direttamente ai nostri uffici. Verrete contattati in seguito per ricevere tutti i dettagli su come procedere all\'acquisto' ); 
 					$this->enabled            = "yes";
  					$this->hasFields          = false;
 
